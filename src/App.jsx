@@ -1,9 +1,9 @@
-import CardInput from './CardInput'
+import PaymentInput from './PaymentInput'
 
 function App() {
   return (
     <>
-      <CardInput></CardInput>
+      <PaymentInput></PaymentInput>
     </>
   )
 }
