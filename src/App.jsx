@@ -1,9 +1,9 @@
-import PaymentInput from './PaymentInput'
+import PaymentPage from './PaymentPage'
 
 function App() {
   return (
     <>
-      <PaymentInput></PaymentInput>
+      <PaymentPage></PaymentPage>
     </>
   )
 }
