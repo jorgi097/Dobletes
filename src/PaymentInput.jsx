@@ -9,29 +9,48 @@ export default function PaymentInput({ formData, setFormData }) {
     const [account, setAccount] = useState('');
     const [errors, setErrors] = useState({ payment: '', name: '', bank: '', account: '' });
 
+    const regexNumericAccount = /^\d*$/;
+    const regexTextName = /^[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+$/;
+    const regexPayment = /^\d{1,3},\d{3}\.\d{2}$|^\d{1,3},\d{3}$|^\d{1,6}\.\d{2}$|^\d{1,6}$/
+
     const handlePaymentChange = (event) => {
+        let value = event.target.value
+
         setPayment(event.target.value);
-        setErrors({ ...errors, payment: '' });
+        if (!regexPayment.test(value)) {
+            setErrors({ ...errors, payment: 'No es un formato vallido' });
+        } else {
+            setErrors({ ...errors, payment: '' });
+        }
+
+
     };
 
     const handleNameChange = (event) => {
-        setName(event.target.value);
-        setErrors({ ...errors, name: '' });
+        let value = event.target.value;
+        let cleanValue = value.replace(/\s+/g, ' ');
+        setName(cleanValue);
+
+        if (regexTextName.test(value) || value.length === 0) {
+            setErrors({ ...errors, name: '' });
+        } else {
+            setErrors({ ...errors, name: 'Ingresa solo letras [A-Z]' });
+        }
+    };
+    const handleNameBlur = (event) => {
+        let value = event.target.value.trim();
+        setName(value);
     };
 
-    const handleBankChange = (event) => {
-        setBank(event.target.value);
-        setErrors({ ...errors, bank: '' });
-    };
 
     const handleAccountPaste = (event) => {
         let value = event.clipboardData.getData('Text').replace(/[\s-]/g, '');
 
-        if (/^\d*$/.test(value) && value.length <= 18) {
+        if (regexNumericAccount.test(value) && value.length <= 18) {
             setAccount(value);
             setErrors({ ...errors, account: "" });
         }
-        if (!/^\d*$/.test(value)) {
+        if (!regexNumericAccount.test(value)) {
             setErrors({ ...errors, account: 'Ingresa unicamente numeros' });
         }
         if (value.length > 18 || value.length < 16 || value.length === 17) {
@@ -42,14 +61,15 @@ export default function PaymentInput({ formData, setFormData }) {
     const handleAccountChange = (event) => {
         let value = event.target.value.replace(/[\s-]/g, '');
 
-        if (/^\d*$/.test(value) && value.length <= 18) {
+        if (regexNumericAccount.test(value) && value.length <= 18) {
             setAccount(value);
             setErrors({ ...errors, account: "" });
         }
-        if (!/^\d*$/.test(value)) {
+        if (!regexNumericAccount.test(value)) {
             setErrors({ ...errors, account: 'Ingresa unicamente numeros' });
         }
     };
+
 
     const handleAccountBlur = (event) => {
         let value = event.target.value;
@@ -57,31 +77,31 @@ export default function PaymentInput({ formData, setFormData }) {
         if (!(value.length === 18 || value.length === 16 || value.length === 0)) {
             setErrors({ ...errors, account: 'Número de Tarjeta o CLABE no válido' });
         }
-        else{
-            setErrors({...errors, account: ""})
+        else {
+            setErrors({ ...errors, account: "" })
         }
     };
 
+    const handleBankChange = (event) => {
+        setBank(event.target.value);
+        setErrors({ ...errors, bank: '' });
+    };
 
     const handleFormSubmit = (event) => {
         event.preventDefault();
-        
-        if ((/^\d*$/.test(account)) && (account.length === 18 || account.length === 16)){
-            const newFormData = { payment, name, bank, account };
-
+        const newFormData = { payment, name, bank, account };
+        if (
+            ((regexNumericAccount.test(account)) && (account.length === 18 || account.length === 16)) &&
+            (regexTextName.test(name) && name.length > 0)
+        ) {
             setFormData([...formData, newFormData]);
 
             setPayment('');
             setName('');
             setBank('');
             setAccount('');
-        } else if(!(account.length === 18 || account.length === 16)){
-            setErrors({ ...errors, account: 'Número de Tarjeta o CLABE no válido' });
-        } else if (!/^\d*$/.test(account)) {
-            setErrors({ ...errors, account: 'Ingresa unicamente numeros' });
-        }
-        
-    };
+        };
+    }
 
     return (
         <form onSubmit={handleFormSubmit}>
@@ -92,6 +112,7 @@ export default function PaymentInput({ formData, setFormData }) {
                 variant='outlined'
                 value={name}
                 onChange={handleNameChange}
+                onBlur={handleNameBlur}
                 error={!!errors.name}
                 helperText={errors.name}
                 sx={{ marginRight: 2 }}
