@@ -11,24 +11,25 @@ export default function PaymentInput({ formData, setFormData }) {
 
     const regexNumericAccount = /^\d*$/;
     const regexTextName = /^[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+$/;
-    const regexPayment = /^\d{1,3},\d{3}\.\d{2}$|^\d{1,3},\d{3}$|^\d{1,6}\.\d{2}$|^\d{1,6}$/
+    const regexPayment = /^\d{1,3},\d{3}\.\d{1,2}$|^\d{1,3},\d{3}$|^\d{1,6}\.\d{1,2}$|^\d{1,6}$/
 
     const handlePaymentChange = (event) => {
         let value = event.target.value
 
         setPayment(event.target.value);
-        if (!regexPayment.test(value)) {
+        if (!regexPayment.test(value) && value.length != 0) {
             setErrors({ ...errors, payment: 'No es un formato vallido' });
         } else {
             setErrors({ ...errors, payment: '' });
         }
-
-
+        
     };
 
     const handleNameChange = (event) => {
-        let value = event.target.value;
-        let cleanValue = value.replace(/\s+/g, ' ');
+        let value = event.target.value.toUpperCase();
+        let noSapaceValue = value.replace(/\s+/g, ' ');
+        // let cleanValue = noSapaceValue.replace(!/\w/, "")
+
         setName(cleanValue);
 
         if (regexTextName.test(value) || value.length === 0) {
@@ -41,7 +42,6 @@ export default function PaymentInput({ formData, setFormData }) {
         let value = event.target.value.trim();
         setName(value);
     };
-
 
     const handleAccountPaste = (event) => {
         let value = event.clipboardData.getData('Text').replace(/[\s-]/g, '');
@@ -69,7 +69,6 @@ export default function PaymentInput({ formData, setFormData }) {
             setErrors({ ...errors, account: 'Ingresa unicamente numeros' });
         }
     };
-
 
     const handleAccountBlur = (event) => {
         let value = event.target.value;
