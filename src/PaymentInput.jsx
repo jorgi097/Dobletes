@@ -12,8 +12,9 @@ export default function PaymentInput({ formData, setFormData }) {
     const [errors, setErrors] = useState({ payment: '', name: '', account: '' });
 
     const regexNumericAccount = /^\d*$/;
+    const regexAccount = /^[\d]{16}$|^[\d]{18}$/
     const regexTextName = /^[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+$/;
-    const regexPayment = /^\d{1,3},\d{3}\.\d{1,2}$|^\d{1,3},\d{3}$|^\d{1,6}\.\d{1,2}$|^\d{1,6}$/
+    const regexPayment = /^\d{1,3},\d{3}\.\d{2}$|^\d{1,6}\.\d{2}$/
 
 
     const handleNameChange = (event) => {
@@ -126,11 +127,11 @@ export default function PaymentInput({ formData, setFormData }) {
         event.preventDefault();
         const newFormData = { payment, name, bank, account };
 
-
-
         if (
-            ((regexNumericAccount.test(account)) && (account.length === 18 || account.length === 16)) &&
-            (regexTextName.test(name) && name.length > 0)
+            (regexAccount.test(account)) &&
+            (regexTextName.test(name) && name.length > 0) &&
+            (regexPayment.test(payment)) &&
+            (!!bank)
         ) {
             setFormData([...formData, newFormData]);
 
@@ -143,9 +144,7 @@ export default function PaymentInput({ formData, setFormData }) {
 
     return (
         <form onSubmit={handleFormSubmit}>
-            <Stack spacing={1} sx={{ width: 400 }}>
-
-
+            <Stack spacing={1} >
                 <TextField
                     required
                     id='name'
@@ -184,8 +183,6 @@ export default function PaymentInput({ formData, setFormData }) {
                     autoComplete="off"
                     sx={{ marginRight: 2 }}
                 />
-
-
                 <Autocomplete
                     required
                     id="bank"
