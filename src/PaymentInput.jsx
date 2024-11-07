@@ -13,35 +13,69 @@ export default function PaymentInput({ formData, setFormData }) {
     const regexTextName = /^[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+$/;
     const regexPayment = /^\d{1,3},\d{3}\.\d{1,2}$|^\d{1,3},\d{3}$|^\d{1,6}\.\d{1,2}$|^\d{1,6}$/
 
-    const handlePaymentChange = (event) => {
-        let value = event.target.value
-
-        setPayment(event.target.value);
-        if (!regexPayment.test(value) && value.length != 0) {
-            setErrors({ ...errors, payment: 'No es un formato vallido' });
-        } else {
-            setErrors({ ...errors, payment: '' });
-        }
-        
-    };
 
     const handleNameChange = (event) => {
-        let value = event.target.value.toUpperCase();
-        let noSapaceValue = value.replace(/\s+/g, ' ');
-        // let cleanValue = noSapaceValue.replace(!/\w/, "")
-
+        let value = event.target.value;
+        let cleanValue = value.replace(/[^A-Za-zñÑáéíóúÁÉÍÓÚ\s]/g, "");
         setName(cleanValue);
 
-        if (regexTextName.test(value) || value.length === 0) {
+        if (regexTextName.test(name) || value.length === 0) {
+            setErrors({ ...errors, name: '' });
+        }
+    };
+
+    const handleNameBlur = (event) => {
+        let value = event.target.value.trim();
+        let noSapaceValue = value.replace(/\s+/g, ' ');
+        setName(noSapaceValue)
+
+        if (regexTextName.test(name) || value.length === 0) {
             setErrors({ ...errors, name: '' });
         } else {
             setErrors({ ...errors, name: 'Ingresa solo letras [A-Z]' });
         }
+
     };
-    const handleNameBlur = (event) => {
-        let value = event.target.value.trim();
-        setName(value);
+
+    const handlePaymentChange = (event) => {
+        let value = event.target.value;
+
+        if (value.length === 0 ||
+            /^\d{1,6}\.?$/.test(value) ||
+            /^\d{1,3},{1}\d{0,3}\.?$/.test(value) ||
+            /^\d{1,6}\.{1}\d{0,2}$/.test(value) ||
+            /^\d{1,3},{1}\d{3}\.{1}\d{0,2}$/.test(value) ||
+            /^\d{0,3},\d{3}\.?\d{0,2}$/.test(value)) {
+
+            setPayment(value);
+            setErrors({ ...errors, payment: '' });
+        }
+        // setErrors({ ...errors, payment: 'No es un formato vallido' });
+
+
     };
+
+    const handlePaymentBlur = (event) => {
+        let value = event.target.value;
+
+        if (/^\d*,?\d*\.{1}[0-9]{2}$/.test(value)) {
+            setPayment(value);
+        }
+        else if (/^\d*,?\d*\.{1}[0-9]{1}$/.test(value)) {
+            value = value + "0";
+            setPayment(value);
+        } else if (/^\d*,?\d*\.{1}$/.test(value)) {
+            value = value + "00";
+            setPayment(value);
+        } else if (/^\d*,?\d*$/.test(value)) {
+            value = value + ".00";
+            setPayment(value);
+        }
+
+
+
+
+    }
 
     const handleAccountPaste = (event) => {
         let value = event.clipboardData.getData('Text').replace(/[\s-]/g, '');
@@ -65,9 +99,7 @@ export default function PaymentInput({ formData, setFormData }) {
             setAccount(value);
             setErrors({ ...errors, account: "" });
         }
-        if (!regexNumericAccount.test(value)) {
-            setErrors({ ...errors, account: 'Ingresa unicamente numeros' });
-        }
+        
     };
 
     const handleAccountBlur = (event) => {
@@ -89,6 +121,9 @@ export default function PaymentInput({ formData, setFormData }) {
     const handleFormSubmit = (event) => {
         event.preventDefault();
         const newFormData = { payment, name, bank, account };
+
+
+
         if (
             ((regexNumericAccount.test(account)) && (account.length === 18 || account.length === 16)) &&
             (regexTextName.test(name) && name.length > 0)
@@ -123,6 +158,7 @@ export default function PaymentInput({ formData, setFormData }) {
                 variant='outlined'
                 value={payment}
                 onChange={handlePaymentChange}
+                onBlur={handlePaymentBlur}
                 error={!!errors.payment}
                 helperText={errors.payment}
                 sx={{ marginRight: 2 }}
