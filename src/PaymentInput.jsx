@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import { Autocomplete, Stack } from '@mui/material';
+import banks from './banks'
 
 export default function PaymentInput({ formData, setFormData }) {
     const [payment, setPayment] = useState('');
     const [name, setName] = useState('');
     const [bank, setBank] = useState('');
     const [account, setAccount] = useState('');
-    const [errors, setErrors] = useState({ payment: '', name: '', bank: '', account: '' });
+    const [errors, setErrors] = useState({ payment: '', name: '', account: '' });
 
     const regexNumericAccount = /^\d*$/;
     const regexTextName = /^[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+$/;
@@ -15,7 +17,7 @@ export default function PaymentInput({ formData, setFormData }) {
 
 
     const handleNameChange = (event) => {
-        let value = event.target.value;
+        let value = event.target.value.toUpperCase();
         let cleanValue = value.replace(/[^A-Za-zñÑáéíóúÁÉÍÓÚ\s]/g, "");
         setName(cleanValue);
 
@@ -67,7 +69,7 @@ export default function PaymentInput({ formData, setFormData }) {
         } else if (/^\d*,?\d*\.{1}$/.test(value)) {
             value = value + "00";
             setPayment(value);
-        } else if (/^\d*,?\d*$/.test(value)) {
+        } else if (/^\d*,?\d*$/.test(value) && value.length != 0) {
             value = value + ".00";
             setPayment(value);
         }
@@ -99,7 +101,7 @@ export default function PaymentInput({ formData, setFormData }) {
             setAccount(value);
             setErrors({ ...errors, account: "" });
         }
-        
+
     };
 
     const handleAccountBlur = (event) => {
@@ -111,11 +113,13 @@ export default function PaymentInput({ formData, setFormData }) {
         else {
             setErrors({ ...errors, account: "" })
         }
+
+
+
     };
 
-    const handleBankChange = (event) => {
-        setBank(event.target.value);
-        setErrors({ ...errors, bank: '' });
+    const handleBankChange = (event, value) => {
+        setBank(value.label);
     };
 
     const handleFormSubmit = (event) => {
@@ -139,56 +143,61 @@ export default function PaymentInput({ formData, setFormData }) {
 
     return (
         <form onSubmit={handleFormSubmit}>
-            <TextField
-                required
-                id='name'
-                label='Nombre'
-                variant='outlined'
-                value={name}
-                onChange={handleNameChange}
-                onBlur={handleNameBlur}
-                error={!!errors.name}
-                helperText={errors.name}
-                sx={{ marginRight: 2 }}
-            />
-            <TextField
-                required
-                id='payment'
-                label='Cantidad'
-                variant='outlined'
-                value={payment}
-                onChange={handlePaymentChange}
-                onBlur={handlePaymentBlur}
-                error={!!errors.payment}
-                helperText={errors.payment}
-                sx={{ marginRight: 2 }}
-            />
-            <TextField
-                required
-                id='account'
-                label='Tarjeta o CLABE'
-                variant='outlined'
-                value={account}
-                onChange={handleAccountChange}
-                onPaste={handleAccountPaste}
-                onBlur={handleAccountBlur}
-                error={!!errors.account}
-                helperText={errors.account}
-                autoComplete="off"
-                sx={{ marginRight: 2 }}
-            />
-            <TextField
-                required
-                id='bank'
-                label='Banco'
-                variant='outlined'
-                value={bank}
-                onChange={handleBankChange}
-                error={!!errors.bank}
-                helperText={errors.bank}
-                sx={{ marginRight: 2 }}
-            />
-            <Button variant="contained" type="submit">Agregar</Button>
+            <Stack spacing={1} sx={{ width: 400 }}>
+
+
+                <TextField
+                    required
+                    id='name'
+                    label='Nombre'
+                    variant='outlined'
+                    value={name}
+                    onChange={handleNameChange}
+                    onBlur={handleNameBlur}
+                    error={!!errors.name}
+                    helperText={errors.name}
+                    sx={{ marginRight: 2 }}
+                />
+                <TextField
+                    required
+                    id='payment'
+                    label='Cantidad'
+                    variant='outlined'
+                    value={payment}
+                    onChange={handlePaymentChange}
+                    onBlur={handlePaymentBlur}
+                    error={!!errors.payment}
+                    helperText={errors.payment}
+                    sx={{ marginRight: 2 }}
+                />
+                <TextField
+                    required
+                    id='account'
+                    label='Tarjeta o CLABE'
+                    variant='outlined'
+                    value={account}
+                    onChange={handleAccountChange}
+                    onPaste={handleAccountPaste}
+                    onBlur={handleAccountBlur}
+                    error={!!errors.account}
+                    helperText={errors.account}
+                    autoComplete="off"
+                    sx={{ marginRight: 2 }}
+                />
+
+
+                <Autocomplete
+                    required
+                    id="bank"
+                    options={banks}
+                    onChange={handleBankChange}
+                    renderInput={(params) => (
+                        <TextField {...params} label="Banco" variant='outlined' />
+                    )}
+                />
+
+                <Button variant="contained" type="submit">Agregar</Button>
+            </Stack>
         </form>
     );
 }
