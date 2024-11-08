@@ -8,6 +8,7 @@ export default function PaymentInput({ formData, setFormData }) {
     const [payment, setPayment] = useState('');
     const [name, setName] = useState('');
     const [bank, setBank] = useState('');
+    const [bankInput, setBankInput] = useState('');
     const [account, setAccount] = useState('');
     const [errors, setErrors] = useState({ payment: '', name: '', account: '' });
 
@@ -40,6 +41,22 @@ export default function PaymentInput({ formData, setFormData }) {
 
     };
 
+    const handlePaymentPaste = (event) => {
+        let value = event.clipboardData.getData('Text');
+        value = value.replace(/[\s-$]/g, '');
+        if (value.length === 0 ||
+            /^\d{1,6}\.?$/.test(value) ||
+            /^\d{1,3},{1}\d{0,3}\.?$/.test(value) ||
+            /^\d{1,6}\.{1}\d{0,2}$/.test(value) ||
+            /^\d{1,3},{1}\d{3}\.{1}\d{0,2}$/.test(value) ||
+            /^\d{0,3},\d{3}\.?\d{0,2}$/.test(value)) {
+
+            setPayment(value);
+            setErrors({ ...errors, payment: '' });
+        }
+        
+    };
+
     const handlePaymentChange = (event) => {
         let value = event.target.value;
 
@@ -53,26 +70,29 @@ export default function PaymentInput({ formData, setFormData }) {
             setPayment(value);
             setErrors({ ...errors, payment: '' });
         }
-        // setErrors({ ...errors, payment: 'No es un formato vallido' });
-
-
     };
 
     const handlePaymentBlur = (event) => {
         let value = event.target.value;
 
-        if (/^\d*,?\d*\.{1}[0-9]{2}$/.test(value)) {
+        if (/^\d*,?\d*\.{1}[0-9]{2}$/.test(value) || value.length === 0) {
             setPayment(value);
+            setErrors({ ...errors, payment: '' });
         }
         else if (/^\d*,?\d*\.{1}[0-9]{1}$/.test(value)) {
             value = value + "0";
             setPayment(value);
+            setErrors({ ...errors, payment: '' });
         } else if (/^\d*,?\d*\.{1}$/.test(value)) {
             value = value + "00";
             setPayment(value);
+            setErrors({ ...errors, payment: '' });
         } else if (/^\d*,?\d*$/.test(value) && value.length != 0) {
             value = value + ".00";
             setPayment(value);
+            setErrors({ ...errors, payment: '' });
+        } else {
+            setErrors({ ...errors, payment: 'No es un formato vallido' });
         }
 
 
@@ -119,10 +139,18 @@ export default function PaymentInput({ formData, setFormData }) {
 
     };
 
+    const handleBankInputChange = (event, value)=>{
+        let newValue = value.toUpperCase().trim();
+        newValue = newValue.replace(/[^A-Za-zñÑáéíóúÁÉÍÓÚ\s-]/g, "");
+        newValue = newValue.replace(/\s+/g, ' ');
+        console.log(newValue);
+        setBankInput(newValue);
+    }
+
     const handleBankChange = (event, value, reason) => {
-        if (reason === "clear" || reason === "reset"){
+        if (reason === "clear" || reason === "reset") {
             setBank("");
-        }else if (reason === "selectOption"){
+        } else if (reason === "selectOption") {
             setBank(value.label);
         }
     };
@@ -167,6 +195,7 @@ export default function PaymentInput({ formData, setFormData }) {
                     label='Cantidad'
                     variant='outlined'
                     value={payment}
+                    onPaste={handlePaymentPaste}
                     onChange={handlePaymentChange}
                     onBlur={handlePaymentBlur}
                     error={!!errors.payment}
@@ -189,12 +218,14 @@ export default function PaymentInput({ formData, setFormData }) {
                 />
                 <Autocomplete
                     required
-                    value= {bank}
+                    value={bank}
+                    inputValue={bankInput}
                     id="bank"
                     options={banks}
                     onChange={handleBankChange}
+                    onInputChange={handleBankInputChange}
                     renderInput={(params) => (
-                        <TextField {...params} label="Banco" variant='outlined' />
+                        <TextField {...params} label="Banco" variant='outlined'/>
                     )}
                 />
 
