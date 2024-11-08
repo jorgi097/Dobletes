@@ -10,7 +10,7 @@ export default function PaymentInput({ formData, setFormData }) {
     const [bank, setBank] = useState('');
     const [bankInput, setBankInput] = useState('');
     const [account, setAccount] = useState('');
-    const [errors, setErrors] = useState({ payment: '', name: '', account: '' });
+    const [errors, setErrors] = useState({ payment: '', name: '', account: '', bank: '' });
 
     const regexNumericAccount = /^\d*$/;
     const regexAccount = /^[\d]{16}$|^[\d]{18}$/
@@ -54,7 +54,7 @@ export default function PaymentInput({ formData, setFormData }) {
             setPayment(value);
             setErrors({ ...errors, payment: '' });
         }
-        
+
     };
 
     const handlePaymentChange = (event) => {
@@ -92,7 +92,7 @@ export default function PaymentInput({ formData, setFormData }) {
             setPayment(value);
             setErrors({ ...errors, payment: '' });
         } else {
-            setErrors({ ...errors, payment: 'No es un formato vallido' });
+            setErrors({ ...errors, payment: 'No es un formato válido' });
         }
 
 
@@ -139,19 +139,34 @@ export default function PaymentInput({ formData, setFormData }) {
 
     };
 
-    const handleBankInputChange = (event, value)=>{
-        let newValue = value.toUpperCase().trim();
-        newValue = newValue.replace(/[^A-Za-zñÑáéíóúÁÉÍÓÚ\s-]/g, "");
-        newValue = newValue.replace(/\s+/g, ' ');
-        console.log(newValue);
-        setBankInput(newValue);
-    }
-
     const handleBankChange = (event, value, reason) => {
-        if (reason === "clear" || reason === "reset") {
-            setBank("");
-        } else if (reason === "selectOption") {
+        if (reason === "selectOption" && value) {
             setBank(value.label);
+            setBankInput(value.label);
+        }
+        if (reason === "clear" || reason === "reset") {
+            setBank('');
+            setBankInput('');
+        }
+    };
+
+    const handleBankInputChange = (event, value, reason) => {
+        if (reason === "input") {
+            let newValue = value.toUpperCase().trim();
+            newValue = newValue.replace(/[^A-Za-zñÑáéíóúÁÉÍÓÚ\s-]/g, "");
+            newValue = newValue.replace(/\s+/g, ' ');
+            setBankInput(newValue);
+        }
+    };
+
+    const handleBlur = () => {
+        const foundBank = banks.find(bank => bank.label === bankInput);
+        if (!!foundBank) {
+            setBank(foundBank.label);
+            setBankInput(foundBank.label);
+        }else{
+            setBank("");
+            setBankInput("");
         }
     };
 
@@ -166,11 +181,13 @@ export default function PaymentInput({ formData, setFormData }) {
             (!!bank)
         ) {
             setFormData([...formData, newFormData]);
+            
 
             setPayment('');
             setName('');
             setBank('');
             setAccount('');
+            setBankInput('')
         };
     }
 
@@ -218,6 +235,7 @@ export default function PaymentInput({ formData, setFormData }) {
                 />
                 <Autocomplete
                     required
+                    autoSelect
                     value={bank}
                     inputValue={bankInput}
                     id="bank"
@@ -225,7 +243,7 @@ export default function PaymentInput({ formData, setFormData }) {
                     onChange={handleBankChange}
                     onInputChange={handleBankInputChange}
                     renderInput={(params) => (
-                        <TextField {...params} label="Banco" variant='outlined'/>
+                        <TextField {...params} label="Banco" variant='outlined' onBlur={handleBlur}/>
                     )}
                 />
 
