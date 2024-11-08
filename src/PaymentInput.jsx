@@ -119,8 +119,12 @@ export default function PaymentInput({ formData, setFormData }) {
 
     };
 
-    const handleBankChange = (event, value) => {
-        setBank(value.label);
+    const handleBankChange = (event, value, reason) => {
+        if (reason === "clear" || reason === "reset"){
+            setBank("");
+        }else if (reason === "selectOption"){
+            setBank(value.label);
+        }
     };
 
     const handleFormSubmit = (event) => {
@@ -185,6 +189,7 @@ export default function PaymentInput({ formData, setFormData }) {
                 />
                 <Autocomplete
                     required
+                    value= {bank}
                     id="bank"
                     options={banks}
                     onChange={handleBankChange}
