@@ -75,6 +75,7 @@ export default function PaymentInput({ formData, setFormData }) {
     const handlePaymentBlur = (event) => {
         let value = event.target.value;
 
+
         if (/^\d*,?\d*\.{1}[0-9]{2}$/.test(value) || value.length === 0) {
             setPayment(value);
             setErrors({ ...errors, payment: '' });
@@ -91,7 +92,8 @@ export default function PaymentInput({ formData, setFormData }) {
             value = value + ".00";
             setPayment(value);
             setErrors({ ...errors, payment: '' });
-        } else {
+        } 
+        if(!regexPayment.test(value)) {
             setErrors({ ...errors, payment: 'No es un formato válido' });
         }
 
@@ -151,16 +153,19 @@ export default function PaymentInput({ formData, setFormData }) {
     };
 
     const handleBankInputChange = (event, value, reason) => {
+        console.log(event);
         if (reason === "input") {
-            let newValue = value.toUpperCase().trim();
+            let newValue = value.toUpperCase();
             newValue = newValue.replace(/[^A-Za-zñÑáéíóúÁÉÍÓÚ\s-]/g, "");
             newValue = newValue.replace(/\s+/g, ' ');
             setBankInput(newValue);
         }
     };
 
-    const handleBlur = () => {
-        const foundBank = banks.find(bank => bank.label === bankInput);
+    const handleBankBlur = () => {
+        let value = bankInput;
+        value = value.trim();
+        const foundBank = banks.find(bank => bank.label === value);
         if (!!foundBank) {
             setBank(foundBank.label);
             setBankInput(foundBank.label);
@@ -243,7 +248,7 @@ export default function PaymentInput({ formData, setFormData }) {
                     onChange={handleBankChange}
                     onInputChange={handleBankInputChange}
                     renderInput={(params) => (
-                        <TextField {...params} label="Banco" variant='outlined' onBlur={handleBlur}/>
+                        <TextField {...params} label="Banco" variant='outlined' onBlur={handleBankBlur}/>
                     )}
                 />
 

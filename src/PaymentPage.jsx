@@ -13,10 +13,10 @@ export default function PaymentPage() {
         <Container>
 
             <Grid container columnSpacing={4} sx={{marginTop: 4}}>
-                <Grid size={3}>
+                <Grid size={4}>
                     <PaymentInput formData={formData} setFormData={setFormData} />
                 </Grid>
-                <Grid size={9}>
+                <Grid size={8}>
                     <PaymentTable formData={formData} /></Grid>
             </Grid>
         </Container>
